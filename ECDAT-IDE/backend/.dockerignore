@@ -1,0 +1,103 @@
+# ECDAT Production Docker Ignore
+# Excludes training artifacts, notebooks, raw data, and weights from production images
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation (not needed in production)
+*.md
+docs/
+doc/
+*.pdf
+
+# Root-level training directories
+Model*
+notebook/
+notebooks/
+
+# Test data and reports
+tests/
+*.json
+*_report.*
+benchmark_results/
+eval_outputs/
+
+# Temporary and cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Large dataset, training data and checkpoints in ANY directory
+**/*.zip
+**/*.tar.gz
+**/*.tar
+**/*.csv
+**/*.tsv
+**/*.npy
+**/*.npz
+**/*.parquet
+**/*.safetensors
+**/*.bin
+**/*.pt
+**/*.pth
+
+# Nested training and data directories
+**/training_data/
+**/training_data_real/
+**/processed_data/
+**/processed_data_real/
+**/data/
+**/checkpoints/
+**/checkpoints_*/
+**/real_vectors/
+**/kat/
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python virtual environments
+venv/
+env/
+.env
+.venv/
+
+# Logs
+*.log
+logs/
+**/logs/
+
+# --- Production serving exceptions (keep last; `!` re-includes) ---
+# Model 04: LoRA adapter weights served by class-e-ml (base model via HF hub)
+!models/model_04_cryptoclassllm/final_model/adapter_model.safetensors
+# Model 07: trained QLoRA adapter (80 MB) served by class-e-ml via ECDATLoRAClient
+!models/model_07_ecdat_lora/final_model/adapter_model.safetensors
+!models/model_07_ecdat_lora/final_model/adapter_config.json
+# Model 21: SQLite KB served by class-c-stateful
+!models/model_21_crypto_api/data/
+!models/model_21_crypto_api/data/knowledge/
+!models/model_21_crypto_api/data/knowledge/crypto_api_kb.sqlite
+# Model 23: seed IOCs served by class-a-cpu
+!models/model_23_trapdoor/data/
+!models/model_23_trapdoor/data/trapdoor_iocs.json

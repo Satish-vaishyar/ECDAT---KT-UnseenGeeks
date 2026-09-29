@@ -1,0 +1,114 @@
+# ============================================================
+# ECDAT Root .gitignore - SIH Submission Exclusions
+# Covers both ECDAT-IDE/ and ECDAT-Web/
+# ============================================================
+
+# ---------- 1. SECRETS / CREDENTIALS - NEVER SUBMIT ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+**/secrets.yaml
+**/secrets.yml
+**/*secret*.json
+!**/secrets.example.yaml
+**/k8s/secrets.yaml
+**/k8s/secrets.yml
+**/.aws/
+**/credentials.json
+**/service-account*.json
+
+# ---------- 2. INTERNAL DEPLOYMENT / HANDOFF DOCS ----------
+**/deployment/AWS_SETUP_AND_HANDOFF.md
+**/deployment/VULTR_SETUP_AND_HANDOFF.md
+**/deployment/GCP_SETUP_AND_HANDOFF.md
+**/deployment/VULTR_ECDAT_CURRENT_CONFIGURATION.md
+**/deployment/CLOUD_DEPLOY_PLAN.md
+**/deployment/AWS_VULTR_IMPLEMENTATION.md
+**/deployment/AWS_FINAL_IMPLEMENTATION.md
+**/deployment/VULTR_AWS_IMPLEMENTATION.md
+**/deployment/DEV_FIX_LIST.md
+**/scripts/setup_aws.sh
+**/scripts/setup_gcp.sh
+**/docker-compose.aws.yml
+**/docker-compose.vultr.yml
+
+# ---------- 3. INTERNAL REPORTS / DEV NOTES ----------
+**/tests/deployment_readiness_report.md
+**/tests/get_model11_payloads.py
+**/tests/test_*_live.py
+**/tests/fixtures/
+**/docs/qpu-first-run-proof.json
+**/docs/INTEGRATION-PLAN.md
+**/doc/AUDIT_OUTPUT_GUIDE.md
+**/doc/GATEWAY_SPEC_COMPLIANCE_REPORT.md
+**/doc/generate_architecture_diagram.py
+**/demo_bubble12/
+**/quantum_redteam/reports/
+**/quantum_redteam/cost/
+**/quantum_redteam/timeline/
+**/data/demo_test_suite/
+**/run_audit_child.py
+**/run_full_audit.py
+**/run_backend.bat
+**/run_backend.ps1
+
+# ---------- 4. LARGE DATA / MODEL WEIGHTS (keep only demo models) ----------
+**/backend/all_models/
+**/backend/data/
+**/*.pt
+**/*.pth
+**/*.bin
+**/*.safetensors
+**/*.onnx
+**/*.ckpt
+**/model_07_ecdat_lora/training_info.json
+**/__pycache__/
+**/*.pyc
+
+# ---------- 5. LOCAL / OS / GIT ----------
+**/.git/
+**/.gitattributes
+**/.github/
+**/.vscode/
+**/.vscodeignore
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+
+# ---------- 6. PYTHON ----------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- 7. NODE / VSCODE EXTENSION BUILD ----------
+**/ecdat-ide-extension/node_modules/
+**/ecdat-ide-extension/out/
+**/ecdat-ide-extension/dist/
+**/ecdat-ide-extension/*.vsix
+**/ecdat-ide-extension/package-lock.json
+**/ecdat-ide-extension/media/
+**/ecdat-ide-extension/themes/
+**/ecdat-ide-extension/walkthrough/
+**/ecdat-ide-extension/smoke-test.js
+
+# ---------- 8. DOCKER / K8S LOCAL ----------
+**/k8s/overlays/local/
+*.tar
+
+# ---------- 9. FRONTEND DRAFTS (keep index.html + judges.html only if needed) ----------
+# Uncomment to exclude frontend drafts:
+# **/frontend/app.js
+# **/frontend/styles.css

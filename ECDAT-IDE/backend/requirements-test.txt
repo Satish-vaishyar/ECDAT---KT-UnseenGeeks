@@ -1,0 +1,15 @@
+# QIROVA backend TEST dependencies (dev/CI only — NOT shipped in the lite venv).
+# The shipped venv (requirements-lite.txt) stays torch-free by design: heavy
+# model routes fall back to standalone-heuristics without torch.
+# Install: .venv\Scripts\python -m pip install -r requirements-test.txt
+#   (torch: CPU wheel via PyPI default on Windows)
+-r requirements-lite.txt
+pytest>=8.0.0
+pytest-cov>=5.0.0
+pytest-asyncio>=0.24.0
+cryptography>=42.0.0
+torch>=2.2.0
+faiss-cpu>=1.8.0
+sentence-transformers>=2.5.0
+chromadb>=0.4.0
+rank-bm25>=0.2.2

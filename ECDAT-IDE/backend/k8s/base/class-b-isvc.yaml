@@ -1,0 +1,183 @@
+# ECDAT Class B - GKE + KServe (GPU LLM Serving)
+# Models: 08 (DeepSeek-Coder), 09 (StarCoder2), 10 (CodeLlama), 11 (Gemini Flash proxy)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecdat-llm-gateway
+  namespace: ecdat-llm
+  labels:
+    app: ecdat-llm-gateway
+spec:
+  selector:
+    app: ecdat-llm-gateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecdat-llm-gateway
+  namespace: ecdat-llm
+  labels:
+    app: ecdat-llm-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecdat-llm-gateway
+  template:
+    metadata:
+      labels:
+        app: ecdat-llm-gateway
+    spec:
+      serviceAccountName: ecdat-serve
+      containers:
+        - name: gateway
+          image: ecdat-models/class-b-gpu:latest
+          ports:
+            - containerPort: 8080
+          command: ["uvicorn"]
+          args:
+            - "models.adapter_class_b:app"
+            - "--host"
+            - "0.0.0.0"
+            - "--port"
+            - "8080"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+# InferenceService: DeepSeek Coder V2 Lite
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: deepseek-coder
+  namespace: ecdat-llm
+  annotations:
+    autoscaling.knative.dev/minScale: "0"
+    autoscaling.knative.dev/maxScale: "3"
+spec:
+  predictor:
+    gpu:
+      count: 1
+      model: nvidia-l4
+    containers:
+      - name: vllm
+        image: vllm/vllm-openai:v0.7.0
+        args:
+          - "--model"
+          - "deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct"
+          - "--quantization"
+          - "awq"
+          - "--max-model-len"
+          - "16384"
+          - "--enforce-eager"
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+            memory: 24Gi
+          requests:
+            cpu: "4"
+            memory: 16Gi
+        env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token
+                key: token
+    minReplicas: 0
+    maxReplicas: 3
+---
+# InferenceService: StarCoder2 15B
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: starcoder2
+  namespace: ecdat-llm
+spec:
+  predictor:
+    gpu:
+      count: 1
+      model: nvidia-l4
+    containers:
+      - name: vllm
+        image: vllm/vllm-openai:v0.7.0
+        args:
+          - "--model"
+          - "bigcode/starcoder2-15b"
+          - "--quantization"
+          - "awq"
+          - "--max-model-len"
+          - "16384"
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+            memory: 24Gi
+          requests:
+            cpu: "4"
+            memory: 16Gi
+        env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token
+                key: token
+    minReplicas: 0
+    maxReplicas: 3
+---
+# InferenceService: CodeLlama 7B
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: codellama
+  namespace: ecdat-llm
+spec:
+  predictor:
+    gpu:
+      count: 1
+      model: nvidia-l4
+    containers:
+      - name: vllm
+        image: vllm/vllm-openai:v0.7.0
+        args:
+          - "--model"
+          - "meta-llama/CodeLlama-7b-Instruct"
+          - "--quantization"
+          - "q4_K_M"
+          - "--max-model-len"
+          - "16384"
+        resources:
+          limits:
+            nvidia.com/gpu: "1"
+            memory: 16Gi
+          requests:
+            cpu: "4"
+            memory: 12Gi
+        env:
+          - name: HF_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: hf-token
+                key: token
+    minReplicas: 0
+    maxReplicas: 3

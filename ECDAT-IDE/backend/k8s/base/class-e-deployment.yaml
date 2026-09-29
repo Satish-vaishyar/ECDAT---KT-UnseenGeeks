@@ -1,0 +1,73 @@
+# ECDAT Class E - Transformer ML Models Deployment
+# Models: 04 (CryptoClassLLM, Qwen2.5-Coder-3B + LoRA), 07 (ECDAT LoRA, Qwen2.5-Coder-7B + LoRA)
+# NOTE: HF base weights download on first load — mount a PVC at /srv/hf-cache in prod.
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecdat-class-e
+  namespace: ecdat
+  labels:
+    app: ecdat-class-e
+    workload: ml-inference
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecdat-class-e
+  template:
+    metadata:
+      labels:
+        app: ecdat-class-e
+        workload: ml-inference
+    spec:
+      containers:
+        - name: class-e-server
+          image: ecdat-models/class-e-ml:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "2"
+              memory: 8Gi
+            limits:
+              cpu: "8"
+              memory: 32Gi
+          env:
+            - name: PORT
+              value: "8080"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: MODEL_E_PRELOAD
+              value: "false"
+            - name: HF_HOME
+              value: "/srv/hf-cache"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecdat-class-e
+  namespace: ecdat
+  labels:
+    app: ecdat-class-e
+spec:
+  type: ClusterIP
+  selector:
+    app: ecdat-class-e
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http

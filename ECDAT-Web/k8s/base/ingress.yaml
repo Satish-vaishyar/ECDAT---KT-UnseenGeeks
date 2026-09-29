@@ -1,0 +1,64 @@
+# ECDAT Ingress Gateway Configuration (AWS ALB / EKS Ingress)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ecdat-ingress
+  namespace: ecdat
+  annotations:
+    kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/healthcheck-path: "/healthz"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: ecdat-gateway
+                port:
+                  number: 8000
+          - path: /docs
+            pathType: Prefix
+            backend:
+              service:
+                name: ecdat-gateway
+                port:
+                  number: 8000
+          - path: /openapi.json
+            pathType: Exact
+            backend:
+              service:
+                name: ecdat-gateway
+                port:
+                  number: 8000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ecdat-gateway
+                port:
+                  number: 8000
+          - path: /v2/models/class-a
+            pathType: Prefix
+            backend:
+              service:
+                name: ecdat-class-a
+                port:
+                  number: 8080
+          - path: /v2/models/chroma
+            pathType: Prefix
+            backend:
+              service:
+                name: ecdat-chroma
+                port:
+                  number: 8000
+          - path: /v2/models/cdkg
+            pathType: Prefix
+            backend:
+              service:
+                name: ecdat-cdkg
+                port:
+                  number: 8080

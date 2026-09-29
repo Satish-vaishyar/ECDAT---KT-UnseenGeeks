@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ECDAT · Enterprise Cryptographic Discovery & Analysis Tool &amp; Assurance</title>
+  <link rel="stylesheet" href="styles.css?v=20260911-14">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark">Q</div><div><span class="eyebrow">ECDAT</span><h1>Security Workbench</h1><small class="brand-tagline">Quantum Intelligence for Resilient Operations, Vulnerability &amp; Assurance</small></div></div>
+      <div class="top-actions"><span id="apiStatus" class="status-pill"><i></i>Checking API</span><a href="/docs" target="_blank" rel="noreferrer">API docs ↗</a></div>
+    </header>
+    <section class="hero"><div><span class="eyebrow accent">POST-QUANTUM READINESS</span><h2>Analyze crypto usage with ECDAT intelligence.</h2><p>Quantum Intelligence for Resilient Operations, Vulnerability &amp; Assurance — review risk, findings, remediation, and model evidence in one place.</p><p class="cbom-badge">We generate a CycloneDX-compatible CBOM — CycloneDX 1.6 (ECMA-424): algorithms, certificates, keys + relationships.</p></div></section>
+    <section class="workspace-grid">
+      <article class="panel">
+        <div class="panel-heading"><div><span class="eyebrow">01 / INPUT</span><h3>Upload an asset</h3></div></div>
+        <label for="targetName">Asset name</label><input id="targetName" class="text-input" value="uploaded_asset" maxlength="160">
+        <label>Upload a file or folder</label>
+        <div class="upload-options"><label class="upload-card"><input id="fileInput" type="file" multiple><strong>Choose files</strong><small>Upload one or more source files</small></label><label class="upload-card"><input id="folderInput" type="file" webkitdirectory directory multiple><strong>Choose folder</strong><small>Upload a source folder</small></label></div>
+        <div id="selection" class="selection empty">No files selected. Uploaded data is removed after analysis.</div>
+        <div class="input-footer"><span id="charCount">No upload selected</span><button id="analyzeButton" class="button primary" type="button">Analyze upload ↗</button></div>
+        <div id="errorBox" class="error-box" role="alert" hidden></div>
+      </article>
+      <article class="panel">
+        <div class="panel-heading"><div><span class="eyebrow">02 / LIVE ANALYSIS</span><h3>Models in progress</h3></div><span id="runTimer" class="mono muted">Ready</span></div>
+        <div id="progressState" class="progress-state"><span class="state-dot"></span><span id="progressLabel">Ready for an audit</span></div>
+        <div id="liveModel" class="live-model"><span class="live-icon">—</span><div><strong>Waiting for input</strong><small>Model activity will appear here during analysis.</small></div></div>
+        <div id="stageList" class="stage-list">
+          <div class="stage" data-stage="1"><span>01</span><div><strong>Discover</strong><small>Models 01–03 · AST, binary, entropy</small></div><b>—</b></div>
+          <div class="stage" data-stage="2"><span>02</span><div><strong>Detect misuse</strong><small>Model 06 · CWE and weak primitives</small></div><b>—</b></div>
+          <div class="stage" data-stage="3"><span>03</span><div><strong>Classify and remediate</strong><small>Models 04, 07 · taxonomy and PQC</small></div><b>—</b></div>
+          <div class="stage" data-stage="4"><span>04</span><div><strong>Model intelligence</strong><small>Models 08–29 · knowledge and risk</small></div><b>—</b></div>
+          <div class="stage" data-stage="5"><span>05</span><div><strong>Assemble report</strong><small>Findings, evidence, and CBOM</small></div><b>—</b></div>
+        </div>
+        <div class="resource-row"><span>Sequential resource profile</span><span id="resourceValue">Checking…</span></div>
+      </article>
+    </section>
+    <section id="resultsSection" hidden>
+      <div class="section-heading"><div><span class="eyebrow accent">03 / RESULTS</span><h2>Audit complete</h2></div><div id="resultActions"></div></div>
+      <div class="metrics-grid"><div class="metric-card"><span>Quantum risk</span><strong id="riskValue">—</strong><small id="riskMeta">—</small></div><div class="metric-card"><span>Total findings</span><strong id="findingValue">—</strong><small id="findingMeta">—</small></div><div class="metric-card"><span>Model evidence</span><strong id="modelValue">—</strong></div><div class="metric-card"><span>Pipeline latency</span><strong id="latencyValue">—</strong><small>Sequential execution</small></div></div>
+      <div class="charts-grid"><article class="panel chart-panel"><div class="panel-heading"><div><span class="eyebrow">RISK PROFILE</span><h3>Findings by severity</h3></div></div><div id="riskChart" class="donut-chart" role="img" aria-label="Findings by severity"></div></article><article class="panel chart-panel"><div class="panel-heading"><div><span class="eyebrow">CRYPTO ASSETS</span><h3>Algorithms detected</h3></div></div><div id="assetChart" class="bubble-chart" role="img" aria-label="Detected cryptographic algorithms"></div></article><article class="panel chart-panel"><div class="panel-heading"><div><span class="eyebrow">MODEL HEALTH</span><h3>Execution status</h3></div></div><div id="modelChart" class="donut-chart" role="img" aria-label="Model execution status"></div></article><article class="panel chart-panel"><div class="panel-heading"><div><span class="eyebrow">COMPLIANCE</span><h3>Controls overview</h3></div></div><div id="complianceChart" class="donut-chart" role="img" aria-label="Compliance control status"></div></article></div>
+      <div class="result-grid"><article class="panel"><div class="panel-heading"><div><span class="eyebrow">FINDINGS</span><h3>Detected crypto exposure</h3></div><span id="findingCount" class="count-badge">0</span></div><div id="findingsList" class="list"></div></article><article class="panel"><div class="panel-heading"><div><span class="eyebrow">MODEL EVIDENCE</span><h3>Execution matrix</h3></div><span id="telemetryCount" class="count-badge">0</span></div><div id="telemetryList" class="list"></div></article></div>
+      <article class="panel compliance-panel"><div class="panel-heading"><div><span class="eyebrow">COMPLIANCE</span><h3>Compliance controls</h3></div><span id="complianceStatus" class="status-tag">—</span></div><div id="complianceList" class="list"><div class="empty-state">Compliance results were not returned.</div></div></article>
+      <article class="panel migration-panel"><div class="panel-heading"><div><span class="eyebrow">MODEL 28 / COSTNET</span><h3>Migration cost estimate</h3></div><span id="migrationStatus" class="status-tag">—</span></div><div id="migrationControls" class="migration-controls"><div class="empty-state">Migration cost was not returned.</div></div><div id="migrationTable" class="migration-table"><div class="empty-state">Migration cost was not returned.</div></div></article>
+      <article class="panel cbom-panel"><div class="panel-heading"><div><span class="eyebrow">CBOM / CYCLONEDX 1.6</span><h3>CycloneDX-compatible CBOM output</h3></div><span id="cbomStatus" class="status-tag">—</span></div><div id="cbomSummary" class="list"><div class="empty-state">CBOM output will appear here after analysis.</div></div><details id="cbomDetails" hidden><summary>Raw CBOM JSON (CycloneDX 1.6 / ECMA-424)</summary><pre id="cbomJson" class="cbom-code"></pre></details></article>
+    </section>
+    <footer><span>ECDAT · Enterprise Cryptographic Discovery & Analysis Tool</span></footer>
+  </div>
+  <script src="app.js?v=20260911-26"></script>
+</body>
+</html>

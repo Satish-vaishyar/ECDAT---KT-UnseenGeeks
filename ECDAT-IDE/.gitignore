@@ -1,0 +1,31 @@
+# --- QIROVA runtime (binaries, venvs, profiles) ---
+ecdat-ide-build/
+.qirova-profile/
+*.vsix
+
+# --- Node / extension build ---
+node_modules/
+out/
+test/.tmp/
+.test-storage/
+*.log
+.DS_Store
+
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# --- Large model weights (exceed GitHub limits; see README) ---
+backend/all_models/model_04/final_model/adapter_model.safetensors
+backend/all_models/model_07/final_model/adapter_model.safetensors
+backend/all_models/model_13/hf_encoder/snapshots/
+
+# --- Runtime state ---
+backend/scans/
+backend/logs/
+*.sqlite3-journal

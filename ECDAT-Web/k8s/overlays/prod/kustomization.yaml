@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+labels:
+  - pairs:
+      app.kubernetes.io/environment: production
+      app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ecdat-models/class-a-cpu
+    newName: ecdat-models/class-a-cpu
+    newTag: latest
+  - name: ecdat-models/class-b-gpu
+    newName: ecdat-models/class-b-gpu
+    newTag: latest
+  - name: ecdat-models/class-c-stateful
+    newName: ecdat-models/class-c-stateful
+    newTag: latest
+  - name: ecdat-models/class-d-batch
+    newName: ecdat-models/class-d-batch
+    newTag: latest

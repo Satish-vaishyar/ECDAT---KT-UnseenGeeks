@@ -1,0 +1,31 @@
+# QIROVA Backend — lightweight deps (no torch/qiskit)
+# These are the only packages needed to boot the gateway and serve all IDE endpoints.
+# The heavy ML routes (class-a/b/c/e) fall back to standalone-heuristics mode without torch.
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
+requests>=2.31.0
+python-multipart>=0.0.6
+httpx>=0.24.0
+aiofiles>=23.0.0
+psutil>=5.9.0
+# Local artifact inference (numpy/onnx/joblib cover models 01/02/03/05/17/24
+# and other sklearn/onnx artifacts; torch models still fall back gracefully).
+numpy>=1.26.0
+onnxruntime>=1.17.0
+joblib>=1.3.0
+xgboost>=2.0.0
+scikit-learn>=1.3.0
+lightgbm>=4.0.0
+pandas>=2.0.0
+# Embedded vector DB for Model 15 ChromaDB (no server).
+chromadb>=0.4.0
+# BM25 lexical retrieval for Model 13 RAG.
+rank-bm25>=0.2.2
+# Chrome-TLS impersonation for Cloudflare-fronted LLM APIs (Featherless).
+curl-cffi>=0.10.0
+# Quantum red-team simulation engine (Qiskit Aer, free local simulator).
+qiskit>=2.0.0
+qiskit-aer>=0.17.0
+# IBM Quantum Runtime (real-QPU red team; simulation works without it).
+qiskit-ibm-runtime>=0.30.0

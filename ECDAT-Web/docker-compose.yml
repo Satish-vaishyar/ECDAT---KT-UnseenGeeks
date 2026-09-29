@@ -1,0 +1,143 @@
+services:
+  # Class A: CPU Fast Inference Service
+  class-a-cpu:
+    build:
+      context: .
+      dockerfile: docker/class-a-cpu/Dockerfile
+    container_name: ecdat-class-a
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - MODEL_NAME=bincryptocnn
+    volumes:
+      - ./models:/srv/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  # Vector Database for Stateful Models (Class C)
+  # NOTE: host port 8001 — gateway owns host 8000 (both collide on single-VM deploys)
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: ecdat-chromadb
+    ports:
+      - "8001:8000"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    volumes:
+      - chroma-data:/data
+    restart: unless-stopped
+
+  # Class C: Stateful Knowledge / Vector Search Service
+  class-c-stateful:
+    build:
+      context: .
+      dockerfile: docker/class-c-stateful/Dockerfile
+    container_name: ecdat-class-c
+    ports:
+      - "8081:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    depends_on:
+      - chromadb
+    volumes:
+      - ./models:/srv/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Class B: GPU LLM service (optional — needs GPU/vLLM; gateway falls back if absent)
+  # NOTE: vLLM base has no curl — healthcheck uses stdlib python.
+  class-b-gpu:
+    build:
+      context: .
+      dockerfile: docker/class-b-gpu/Dockerfile
+    container_name: ecdat-class-b
+    profiles: ["gpu"]
+    ports:
+      - "8082:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_HOST=http://ollama:11434
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://localhost:8080/healthz',timeout=5).status==200 else 1)"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Class E: Transformer ML models (04 CryptoClassLLM, 07 ECDAT LoRA)
+  # Optional — needs HF downloads (~20GB); gateway falls back if absent
+  class-e-ml:
+    build:
+      context: .
+      dockerfile: docker/class-e-ml/Dockerfile
+    container_name: ecdat-class-e
+    profiles: ["ml"]
+    ports:
+      - "8083:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - MODEL_E_PRELOAD=false
+      - HF_HOME=/srv/hf-cache
+    volumes:
+      - ./models:/srv/models:ro
+      - hf-cache:/srv/hf-cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # API Gateway (all dockerised models)
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/gateway/Dockerfile
+    container_name: ecdat-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+      - CLASS_A_URL=http://class-a-cpu:8080
+      - CLASS_B_URL=http://class-b-gpu:8080
+      - CLASS_C_URL=http://class-c-stateful:8080
+      - CLASS_E_URL=http://class-e-ml:8080
+      - STANDALONE_FALLBACK=true
+    depends_on:
+      - class-a-cpu
+      - class-c-stateful
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  chroma-data:
+    driver: local
+  hf-cache:
+    driver: local

@@ -1,0 +1,223 @@
+services:
+  # Ollama daemon — local LLM serving for models 08/09/10 (Class B).
+  # Opt-in: `docker compose --profile llm up -d`. CPU works (slow for 16B);
+  # with NVIDIA Container Toolkit it serves on GPU automatically.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ecdat-ollama
+    profiles: ["llm"]
+    ports:
+      - "127.0.0.1:11434:11434"  # internal only; class-b proxies it
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  # One-shot: pull the Group-B model tags matching all_models/model_0{8,9,10}
+  # client defaults (skips already-cached). ~9GB for the DeepSeek lite tag.
+  ollama-pull:
+    image: ollama/ollama:latest
+    profiles: ["llm"]
+    depends_on:
+      ollama: {condition: service_healthy}
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    volumes:
+      - ollama-data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "for m in deepseek-coder-v2:16b-lite-instruct-q4_K_M starcoder2:15b-instruct-q5_K_M codellama:7b-instruct-q4_K_M;
+       do ollama pull $$m || true; done; ollama list"
+    restart: "no"
+
+  # Class A: CPU Fast Inference Service
+  class-a-cpu:
+    build:
+      context: .
+      dockerfile: docker/class-a-cpu/Dockerfile
+    container_name: ecdat-class-a
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - ECDAT_ALL_MODELS_DIR=/srv/all_models
+      - MODEL_NAME=bincryptocnn
+    volumes:
+      - ./models:/srv/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+  # Vector Database for Stateful Models (Class C)
+  # NOTE: host port 8001 — gateway owns host 8000 (both collide on single-VM deploys)
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: ecdat-chromadb
+    ports:
+      - "8001:8000"
+    environment:
+      - IS_PERSISTENT=TRUE
+      - ANONYMIZED_TELEMETRY=FALSE
+    volumes:
+      - chroma-data:/data
+    restart: unless-stopped
+
+  # Class C: Stateful Knowledge / Vector Search Service
+  class-c-stateful:
+    build:
+      context: .
+      dockerfile: docker/class-c-stateful/Dockerfile
+    container_name: ecdat-class-c
+    ports:
+      - "8081:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    depends_on:
+      - chromadb
+    volumes:
+      - ./models:/srv/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Class B: GPU LLM service (optional — needs GPU/vLLM; gateway falls back if absent)
+  # NOTE: vLLM base has no curl — healthcheck uses stdlib python.
+  class-b-gpu:
+    build:
+      context: .
+      dockerfile: docker/class-b-gpu/Dockerfile
+    container_name: ecdat-class-b
+    profiles: ["gpu"]
+    ports:
+      - "8082:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_HOST=http://ollama:11434
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - MODEL11_GEMINI_MODEL=${MODEL11_GEMINI_MODEL:-gemini-3.6-flash}
+      - MODEL11_BILLING=${MODEL11_BILLING:-free}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_API_BASE=${GROQ_API_BASE:-https://api.groq.com/openai/v1}
+      - MODEL8_GROQ_MODEL=${MODEL8_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - MODEL9_GROQ_MODEL=${MODEL9_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - MODEL10_GROQ_MODEL=${MODEL10_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - MODEL11_GROQ_MODEL=${MODEL11_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - NVIDIA_API_BASE=${NVIDIA_API_BASE:-https://integrate.api.nvidia.com/v1}
+      - NVIDIA_MODEL=${NVIDIA_MODEL:-moonshotai/kimi-k3}
+      - MODEL8_BACKEND=${MODEL8_BACKEND:-auto}
+      - MODEL9_BACKEND=${MODEL9_BACKEND:-auto}
+      - MODEL10_BACKEND=${MODEL10_BACKEND:-auto}
+      - MODEL11_BACKEND=${MODEL11_BACKEND:-auto}
+    depends_on:
+      ollama: {condition: service_healthy, required: false}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://localhost:8080/healthz',timeout=5).status==200 else 1)"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Class E: Transformer ML models (04 CryptoClassLLM, 07 ECDAT LoRA)
+  # Optional — needs HF downloads (~20GB); gateway falls back if absent
+  class-e-ml:
+    build:
+      context: .
+      dockerfile: docker/class-e-ml/Dockerfile
+    container_name: ecdat-class-e
+    profiles: ["ml"]
+    ports:
+      - "8083:8080"
+    environment:
+      - PORT=8080
+      - PYTHONUNBUFFERED=1
+      - MODEL_E_PRELOAD=false
+      - HF_HOME=/srv/hf-cache
+    volumes:
+      - ./models:/srv/models:ro
+      - hf-cache:/srv/hf-cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # API Gateway (all dockerised models)
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/gateway/Dockerfile
+    container_name: ecdat-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+      - CLASS_A_URL=http://class-a-cpu:8080
+      - CLASS_B_URL=http://class-b-gpu:8080
+      - CLASS_C_URL=http://class-c-stateful:8080
+      - CLASS_E_URL=http://class-e-ml:8080
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - GROQ_API_BASE=${GROQ_API_BASE:-https://api.groq.com/openai/v1}
+      - MODEL8_GROQ_MODEL=${MODEL8_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - MODEL9_GROQ_MODEL=${MODEL9_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - MODEL10_GROQ_MODEL=${MODEL10_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - MODEL11_GROQ_MODEL=${MODEL11_GROQ_MODEL:-qwen/qwen3.8-27b}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - NVIDIA_API_BASE=${NVIDIA_API_BASE:-https://integrate.api.nvidia.com/v1}
+      - NVIDIA_MODEL=${NVIDIA_MODEL:-moonshotai/kimi-k3}
+      - NVIDIA_API_TIMEOUT=${NVIDIA_API_TIMEOUT:-30}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - DEEPSEEK_API_BASE=${DEEPSEEK_API_BASE:-https://api.deepseek.com/v1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - FEATHERLESS_API_KEY=${FEATHERLESS_API_KEY:-}
+      - FEATHERLESS_API_BASE=${FEATHERLESS_API_BASE:-https://api.featherless.ai/v1}
+      - FEATHERLESS_MODEL=${FEATHERLESS_MODEL:-deepseek-ai/DeepSeek-R1-Distill-Qwen-14B}
+      - OLLAMA_HOST=${OLLAMA_HOST:-http://localhost:11434}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - MODEL11_GEMINI_MODEL=${MODEL11_GEMINI_MODEL:-gemini-3.6-flash}
+      - MODEL11_BILLING=${MODEL11_BILLING:-free}
+      - MODEL8_BACKEND=${MODEL8_BACKEND:-auto}
+      - MODEL9_BACKEND=${MODEL9_BACKEND:-auto}
+      - MODEL10_BACKEND=${MODEL10_BACKEND:-auto}
+      - MODEL11_BACKEND=${MODEL11_BACKEND:-auto}
+      - STANDALONE_FALLBACK=true
+    depends_on:
+      - class-a-cpu
+      - class-c-stateful
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  chroma-data:
+    driver: local
+  hf-cache:
+    driver: local
+  ollama-data:
+    driver: local

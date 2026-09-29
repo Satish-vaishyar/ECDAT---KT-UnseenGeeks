@@ -1,0 +1,136 @@
+# ECDAT Vultr overlay (VKE) — post-demo path; single-VM compose split ignores k8s/.
+# Registry: <region>.vultrcr.com/<repo>  (blr = Bangalore VCR region)
+# Create pull secret first:
+#   kubectl create secret docker-registry vultr-regcred -n ecdat \
+#     --docker-server=blr.vultrcr.com --docker-username=<vultr-api-key> \
+#     --docker-password=<vultr-api-key>
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+labels:
+  - pairs:
+      app.kubernetes.io/environment: vultr
+      app.kubernetes.io/managed-by: kustomize
+
+images:
+  - name: ecdat-models/class-a-cpu
+    newName: blr.vultrcr.com/ecdatmodels/class-a-cpu
+    newTag: latest
+  - name: ecdat-models/class-b-gpu
+    newName: blr.vultrcr.com/ecdatmodels/class-b-gpu
+    newTag: latest
+  - name: ecdat-models/class-c-stateful
+    newName: blr.vultrcr.com/ecdatmodels/class-c-stateful
+    newTag: latest
+  - name: ecdat-models/class-d-batch
+    newName: blr.vultrcr.com/ecdatmodels/class-d-batch
+    newTag: latest
+  - name: ecdat-models/class-e-ml
+    newName: blr.vultrcr.com/ecdatmodels/class-e-ml
+    newTag: latest
+  - name: ecdat-gateway
+    newName: blr.vultrcr.com/ecdatmodels/gateway
+    newTag: latest
+
+patches:
+  # nginx ingress instead of AWS ALB
+  - target: {kind: Ingress, name: ecdat-ingress}
+    patch: |-
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: ecdat-ingress
+        annotations:
+          kubernetes.io/ingress.class: "nginx"
+          nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+      spec:
+        ingressClassName: nginx
+  # Vultr block storage for stateful PVCs
+  - target: {kind: PersistentVolumeClaim, name: ecdat-cdkg-pvc}
+    patch: |-
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ecdat-cdkg-pvc
+      spec:
+        storageClassName: vultr-block-storage
+  - target: {kind: PersistentVolumeClaim, name: ecdat-chroma-pvc}
+    patch: |-
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ecdat-chroma-pvc
+      spec:
+        storageClassName: vultr-block-storage
+  # imagePullSecrets on every pod spec (Deployments)
+  - target: {kind: Deployment, name: ecdat-class-a}
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ecdat-class-a
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: vultr-regcred
+  - target: {kind: Deployment, name: ecdat-gateway}
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ecdat-gateway
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: vultr-regcred
+  - target: {kind: Deployment, name: ecdat-class-e}
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ecdat-class-e
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: vultr-regcred
+  - target: {kind: Deployment, name: ecdat-llm-gateway}
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ecdat-llm-gateway
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: vultr-regcred
+  # imagePullSecrets on every pod spec (StatefulSets)
+  - target: {kind: StatefulSet, name: ecdat-cdkg}
+    patch: |-
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: ecdat-cdkg
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: vultr-regcred
+  - target: {kind: StatefulSet, name: ecdat-chroma}
+    patch: |-
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: ecdat-chroma
+      spec:
+        template:
+          spec:
+            imagePullSecrets:
+              - name: vultr-regcred

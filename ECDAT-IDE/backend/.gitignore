@@ -1,0 +1,84 @@
+# # Byte-compiled / optimized / DLL files
+# __pycache__/
+# *.py[cod]
+# *$py.class
+
+# # Caches and virtual environments
+# .pytest_cache/
+# .virtual_documents/
+# .ipynb_checkpoints/
+# */.ipynb_checkpoints/
+# .env
+# .venv
+# env/
+# venv/
+# ENV/
+
+# # Temporary and local artifacts
+# *.log
+# scratch/
+# *.tmp
+# *.bak
+# .DS_Store
+# Thumbs.db
+
+# # Large dataset caches (if raw/recomputed)
+# notebook/all datasets/model29_s294.zip
+
+# # GCP credentials
+# *.pem
+# *.key
+# service-account-key.json
+
+# # Local test outputs
+# tests/test_results.json
+# tests/stress_test_report.json
+# tests/*.json
+
+# # Model training outputs (keep production models only)
+# *.pt
+# *.pth
+# checkpoints/
+# training_data/
+# processed_data/
+# data/raw/
+# data/training/
+# *.zip
+# *.tar.gz
+
+# # Logs
+# logs/
+
+# # Training artifacts and model directories
+# Model [0-9]*/
+# models/model_*/
+# !models/adapter_class*.py
+# !models/batch_job.py
+# !models/README.md
+# !models/compare_models.py
+
+# # Training scripts
+# scripts/eval/
+# scripts/train/
+
+# # Notebooks and datasets
+# notebook/
+# doc/all*doc/
+
+# # Data directories
+# data/raw/
+# data/training/
+# data/processed/
+# data/scans/*.db
+# data/scans/scan_*
+# prepared/
+
+# # Additional training artifacts
+
+
+# # Virtual documents
+# .virtual_documents/
+
+# # Reports and legacy scripts
+# doc/reports/
+# scripts/remediate_legacy.py

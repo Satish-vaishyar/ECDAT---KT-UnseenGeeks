@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ecdat"
+version = "3.0.0"
+description = "Enterprise Cryptographic Discovery & Analysis Tool (SIH 2026 Problem Statement ID 26164 - NTRO)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Proprietary / NTRO SIH 26164" }
+authors = [
+    { name = "ECDAT Core Research & Engineering Team" }
+]
+keywords = [
+    "post-quantum-cryptography",
+    "pqc",
+    "quantum-machine-learning",
+    "ai-red-teaming",
+    "cryptographic-discovery",
+    "cbom",
+    "ntro"
+]
+
+[project.urls]
+Homepage = "https://github.com/qsum99/quantum-pqc-sih2"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+# Hardware/RL integrations (qiskit, pennylane, stable-baselines3, IBM QPU
+# credentials) are exercised in their docker images, not in the lite venv.
+omit = ["*/security/*"]

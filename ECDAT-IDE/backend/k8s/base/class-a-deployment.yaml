@@ -1,0 +1,72 @@
+# ECDAT Class A - CPU Fast Inference Microservices Deployment
+# Models: 01 (AST-CryptoNet), 02 (BinCryptoCNN), 03 (EntropyGuard), 06 (MisuseDetector),
+#         17 (SourceTrust), 18 (TKG), 20 (QuantumCost), 22 (VulnIntel), 23 (TrapdoorIOC),
+#         24 (ComplianceKB), 25 (QARS), 26 (MonteCarlo), 28 (ConfidenceCalibration)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecdat-class-a
+  namespace: ecdat
+  labels:
+    app: ecdat-class-a
+    workload: cpu-inference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ecdat-class-a
+  template:
+    metadata:
+      labels:
+        app: ecdat-class-a
+        workload: cpu-inference
+    spec:
+      containers:
+        - name: class-a-server
+          image: ecdat-models/class-a-cpu:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          env:
+            - name: PORT
+              value: "8080"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: MODEL_NAME
+              value: "bincryptocnn"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecdat-class-a
+  namespace: ecdat
+  labels:
+    app: ecdat-class-a
+spec:
+  type: ClusterIP
+  selector:
+    app: ecdat-class-a
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http

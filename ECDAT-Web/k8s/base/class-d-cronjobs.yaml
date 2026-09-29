@@ -1,0 +1,179 @@
+# ECDAT Class D - Batch Jobs (Scheduled CronJobs)
+# Models: 05 (CryptoRobust), 19 (GNN Risk), 27 (Temporal Risk), 29 (Red Team)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecdat-batch-config
+  namespace: ecdat
+data:
+  WEIGHTS_BUCKET_BASE: "gs://ecdat-weights"
+  LOGS_BUCKET_BASE: "gs://ecdat-logs"
+---
+# CronJob: CryptoRobust (Every 6 hours)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ecdat-batch-cryptorobust
+  namespace: ecdat
+spec:
+  schedule: "0 */6 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: ecdat-serve
+          containers:
+            - name: batch
+              image: ecdat-models/class-d-batch:latest
+              resources:
+                requests:
+                  cpu: "1"
+                  memory: 2Gi
+                limits:
+                  cpu: "4"
+                  memory: 8Gi
+              env:
+                - name: MODEL_NAME
+                  value: "cryptorobust"
+                - name: INPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: WEIGHTS_BUCKET_BASE
+                - name: OUTPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: LOGS_BUCKET_BASE
+              command: ["python", "-m", "models.batch_job"]
+          restartPolicy: OnFailure
+---
+# CronJob: Temporal Risk (Every 4 hours)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ecdat-batch-temporal-risk
+  namespace: ecdat
+spec:
+  schedule: "0 */4 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: ecdat-serve
+          containers:
+            - name: batch
+              image: ecdat-models/class-d-batch:latest
+              resources:
+                requests:
+                  cpu: "500m"
+                  memory: 1Gi
+                limits:
+                  cpu: "2"
+                  memory: 4Gi
+              env:
+                - name: MODEL_NAME
+                  value: "temporal_risk"
+                - name: INPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: WEIGHTS_BUCKET_BASE
+                - name: OUTPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: LOGS_BUCKET_BASE
+              command: ["python", "-m", "models.batch_job"]
+          restartPolicy: OnFailure
+---
+# CronJob: Red Team Adversarial (Daily at 2 AM)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ecdat-batch-red-team
+  namespace: ecdat
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: ecdat-serve
+          containers:
+            - name: batch
+              image: ecdat-models/class-d-batch:latest
+              resources:
+                requests:
+                  cpu: "2"
+                  memory: 4Gi
+                limits:
+                  cpu: "8"
+                  memory: 16Gi
+              env:
+                - name: MODEL_NAME
+                  value: "red_team"
+                - name: INPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: WEIGHTS_BUCKET_BASE
+                - name: OUTPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: LOGS_BUCKET_BASE
+              command: ["python", "-m", "models.batch_job"]
+          restartPolicy: OnFailure
+---
+# CronJob: GNN Risk Topology (Every 8 hours)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ecdat-batch-gnn-risk
+  namespace: ecdat
+spec:
+  schedule: "0 */8 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: ecdat-serve
+          containers:
+            - name: batch
+              image: ecdat-models/class-d-batch:latest
+              resources:
+                requests:
+                  cpu: "1"
+                  memory: 2Gi
+                limits:
+                  cpu: "4"
+                  memory: 8Gi
+              env:
+                - name: MODEL_NAME
+                  value: "gnn_risk"
+                - name: INPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: WEIGHTS_BUCKET_BASE
+                - name: OUTPUT_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: ecdat-batch-config
+                      key: LOGS_BUCKET_BASE
+              command: ["python", "-m", "models.batch_job"]
+          restartPolicy: OnFailure

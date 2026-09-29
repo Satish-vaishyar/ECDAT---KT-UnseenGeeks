@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "description": "Known cryptographic trapdoor/backdoor IOCs (spec ECDAT_AI_ML_MODELS §23)",
+  "iocs": [
+    {
+      "ioc_id": "TRAP-001", "ioc_type": "BACKDOOR_PARAMS",
+      "title": "Dual_EC_DRBG default points (NIST SP 800-90A)",
+      "fingerprint": "dual_ec_drbg_p256",
+      "patterns": ["Dual_EC_DRBG", "dualec", "0x6A2D4D5A9DABD1A5E9B"],
+      "severity": "CRITICAL", "cwe_id": "CWE-327",
+      "recommendation": "Remove Dual_EC_DRBG; use CTR_DRBG or Hash_DRBG (NIST SP 800-90Ar1).",
+      "source": "NIST SP 800-90A / Snowden disclosures"
+    },
+    {
+      "ioc_id": "TRAP-002", "ioc_type": "WEAKENED_RNG_SEED",
+      "title": "Debian OpenSSL weak keys (CVE-2008-0166)",
+      "fingerprint": "debian_weak_key_2006_2008",
+      "patterns": ["BEGIN RSA PRIVATE KEY", "debian", "openssl-blacklist"],
+      "severity": "CRITICAL", "cwe_id": "CWE-330",
+      "recommendation": "Regenerate all keys on affected Debian/Ubuntu hosts; check openssl-blacklist.",
+      "source": "CVE-2008-0166"
+    },
+    {
+      "ioc_id": "TRAP-003", "ioc_type": "HARDCODED_NONCE",
+      "title": "Hardcoded ECDSA nonce (Sony PS3 / CVE-2010-0740 style)",
+      "fingerprint": "ecdsa_static_k",
+      "patterns": ["k = 0x", "nonce = b'\\x00", "deterministic_nonce = False"],
+      "severity": "CRITICAL", "cwe_id": "CWE-329",
+      "recommendation": "Use RFC 6979 deterministic nonces or CSPRNG per signature.",
+      "source": "Sony PS3 ECDSA failure analysis"
+    },
+    {
+      "ioc_id": "TRAP-004", "ioc_type": "SUSPICIOUS_KEY_SIZE",
+      "title": "Sub-512-bit RSA / export-grade keys (FREAK/Logjam class)",
+      "fingerprint": "export_grade_rsa_512",
+      "patterns": ["RSA.generate(512)", "modulusLength: 512", "EXPORT_RSA", "TLS_RSA_EXPORT"],
+      "severity": "HIGH", "cwe_id": "CWE-326",
+      "recommendation": "Minimum RSA-2048; disable export cipher suites.",
+      "source": "FREAK (CVE-2015-0204) / Logjam (CVE-2015-4000)"
+    },
+    {
+      "ioc_id": "TRAP-005", "ioc_type": "HARDCODED_KEY",
+      "title": "Embedded private key / hardcoded secret",
+      "fingerprint": "embedded_private_key",
+      "patterns": ["BEGIN PRIVATE KEY", "BEGIN RSA PRIVATE KEY", "sk_live_", "MASTER_SECRET"],
+      "severity": "HIGH", "cwe_id": "CWE-798",
+      "recommendation": "Remove embedded secrets; use vault/KMS with rotation.",
+      "source": "CWE-798"
+    },
+    {
+      "ioc_id": "TRAP-006", "ioc_type": "COMPROMISED_CERT",
+      "title": "Known-compromised certificate indicators",
+      "fingerprint": "compromised_cert",
+      "patterns": ["serial 0x00", "null_dn", "test_certificate_do_not_trust"],
+      "severity": "MEDIUM", "cwe_id": "CWE-295",
+      "recommendation": "Replace test/compromised certificates; pin production CAs.",
+      "source": "CA incident reports"
+    }
+  ]
+}

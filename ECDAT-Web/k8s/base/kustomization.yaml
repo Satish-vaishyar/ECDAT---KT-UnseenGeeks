@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespaces.yaml
+  - class-a-deployment.yaml
+  - class-b-isvc.yaml
+  - class-c-stateful.yaml
+  - class-d-cronjobs.yaml
+  - class-e-deployment.yaml
+  - gateway-deployment.yaml
+  - ingress.yaml

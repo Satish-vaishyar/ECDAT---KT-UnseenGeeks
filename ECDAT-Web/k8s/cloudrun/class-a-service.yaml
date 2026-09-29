@@ -1,0 +1,72 @@
+# ECDAT Class A - Cloud Run Deployment (CPU Models)
+# Apply with: gcloud run deploy <service-name> --image=... --region=asia-south1
+---
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: ecdat-class-a
+  namespace: ecdat
+  annotations:
+    run.googleapis.com/ingress: internal
+spec:
+  predictor:
+    serviceAccountName: ecdat-serve
+    minReplicas: 0
+    maxReplicas: 10
+    timeout: 300s
+    resources:
+      limits:
+        cpu: "2"
+        memory: 2Gi
+    container:
+      image: asia-south1-docker.pkg.dev/PROJECT_ID/ecdat-models/class-a-cpu:latest
+      ports:
+        - containerPort: 8080
+      env:
+        - name: PORT
+          value: "8080"
+        - name: MODEL_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['model']
+      healthReadinessProbe:
+        path: /readyz
+        port: 8080
+        initialDelaySeconds: 5
+        periodSeconds: 10
+      healthStartupProbe:
+        path: /healthz
+        port: 8080
+        initialDelaySeconds: 3
+        periodSeconds: 5
+        failureThreshold: 30
+---
+# Cloud Run Service for each CPU model
+# Repeat this block for each model: bincryptocnn, entropyguard, etc.
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ecdat-model-{NAME}
+  namespace: ecdat
+  labels:
+    app: ecdat
+    model: {NAME}
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+    spec:
+      serviceAccountName: ecdat-serve
+      containers:
+        - image: asia-south1-docker.pkg.dev/PROJECT_ID/ecdat-models/{NAME}:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+          env:
+            - name: MODEL_NAME
+              value: "{NAME}"

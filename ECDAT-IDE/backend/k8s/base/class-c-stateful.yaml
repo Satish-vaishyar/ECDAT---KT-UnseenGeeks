@@ -1,0 +1,173 @@
+# ECDAT Class C - StatefulSets (Persistent Storage for Knowledge Graph and Vector DB)
+# Models: 12 (CDKG), 13 (RAG), 14 (Hybrid), 15 (ChromaDB), 16 (Embeddings)
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ecdat-cdkg-pvc
+  namespace: ecdat
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: standard-rwo
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ecdat-cdkg
+  namespace: ecdat
+spec:
+  serviceName: ecdat-cdkg
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecdat-cdkg
+  template:
+    metadata:
+      labels:
+        app: ecdat-cdkg
+    spec:
+      serviceAccountName: ecdat-serve
+      containers:
+        - name: cdkg
+          image: ecdat-models/class-c-stateful:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "4"
+              memory: 8Gi
+          volumeMounts:
+            - name: cdkg-data
+              mountPath: /data
+          env:
+            - name: MODEL_NAME
+              value: "cdkg"
+            - name: NEO4J_URI
+              valueFrom:
+                secretKeyRef:
+                  name: neo4j-credentials
+                  key: uri
+                  optional: true
+            - name: NEO4J_USER
+              valueFrom:
+                secretKeyRef:
+                  name: neo4j-credentials
+                  key: user
+                  optional: true
+            - name: NEO4J_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: neo4j-credentials
+                  key: password
+                  optional: true
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+      volumes:
+        - name: cdkg-data
+          persistentVolumeClaim:
+            claimName: ecdat-cdkg-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecdat-cdkg
+  namespace: ecdat
+spec:
+  clusterIP: None
+  selector:
+    app: ecdat-cdkg
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+# ChromaDB Persistent Vector Database
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ecdat-chroma-pvc
+  namespace: ecdat
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard-rwo
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ecdat-chroma
+  namespace: ecdat
+spec:
+  serviceName: ecdat-chroma
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecdat-chroma
+  template:
+    metadata:
+      labels:
+        app: ecdat-chroma
+    spec:
+      serviceAccountName: ecdat-serve
+      containers:
+        - name: chromadb
+          image: chromadb/chroma:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          volumeMounts:
+            - name: chroma-data
+              mountPath: /data
+          env:
+            - name: IS_PERSISTENT
+              value: "TRUE"
+            - name: ANONYMIZED_TELEMETRY
+              value: "FALSE"
+          readinessProbe:
+            httpGet:
+              path: /api/v1/heartbeat
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: chroma-data
+          persistentVolumeClaim:
+            claimName: ecdat-chroma-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ecdat-chroma
+  namespace: ecdat
+spec:
+  type: ClusterIP
+  selector:
+    app: ecdat-chroma
+  ports:
+    - port: 8000
+      targetPort: 8000

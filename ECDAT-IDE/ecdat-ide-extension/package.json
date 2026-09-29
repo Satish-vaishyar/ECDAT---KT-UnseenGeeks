@@ -1,0 +1,522 @@
+{
+  "name": "qirova-ide",
+  "displayName": "QIROVA IDE — Quantum Intelligence for PQC Migration",
+  "description": "Post-quantum cryptography IDE: live crypto-flaw diagnostics, per-file PQC readiness score, one-click remediation (MD5→BLAKE3, RSA→ML-KEM), inline CBOM, red-team copilot, and direct integration with the QIROVA FastAPI gateway.",
+  "version": "1.0.0",
+  "publisher": "QIROVA",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Security"
+  ],
+  "keywords": [
+    "cryptography",
+    "post-quantum",
+    "pqc",
+    "cbom",
+    "cve",
+    "security",
+    "ml-kem",
+    "ml-dsa",
+    "slh-dsa",
+    "blake3",
+    "qirova",
+    "ecdat",
+    "ntro",
+    "sih2026"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "QIROVA IDE",
+      "properties": {
+        "ecdat.gateway.url": {
+          "type": "string",
+          "default": "http://localhost:8000",
+          "description": "URL of the QIROVA FastAPI gateway. Use http(s)://host:port. Supports remote/on-prem deployments."
+        },
+        "ecdat.gateway.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Optional bearer token sent in Authorization header when calling the gateway."
+        },
+        "ecdat.gateway.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Probe /api/v1/health on activation. When false, flips to MOCK mode by default."
+        },
+        "ecdat.scan.onOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run a live crypto scan on every file open and surface diagnostics inline."
+        },
+        "ecdat.scan.onSave": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run a live crypto scan whenever a supported file is saved."
+        },
+        "ecdat.scan.onEdit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Re-scan the active file (debounced) while you type, keeping inline crypto diagnostics and the findings tree current."
+        },
+        "ecdat.scan.includeTests": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include test/* and *_test.* files in workspace scans. Off by default."
+        },
+        "ecdat.ui.theme": {
+          "type": "string",
+          "enum": [
+            "system",
+            "dark",
+            "light",
+            "qirova-secure"
+          ],
+          "default": "qirova-secure",
+          "description": "Default color theme. 'qirova-secure' is a custom dark theme tuned for security operations."
+        },
+        "ecdat.statusBar.qday": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show Q-Day P50 countdown in the status bar."
+        },
+        "ecdat.statusBar.score": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show per-file PQC readiness score in the status bar."
+        },
+        "ecdat.copilot.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Register the @qirova chat participant with red-team, scoring and remediation tools."
+        },
+        "ecdat.copilot.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the QIROVA Copilot panel on the right side of the editor when the IDE starts."
+        },
+        "ecdat.ai.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Let the Copilot fall back to the gateway AI chat (POST /api/v1/ai/chat) for free-text questions. Offline it answers from local analysis."
+        },
+        "ecdat.ai.model": {
+          "type": "string",
+          "enum": [
+            "deepseek_coder",
+            "starcoder2",
+            "codellama",
+            "gemini_flash",
+            "ecdat_lora"
+          ],
+          "default": "deepseek_coder",
+          "description": "LLM used for AI chat (models 08-11 + 07). Resolves via Ollama, API keys (NVIDIA/Groq/DeepSeek/Gemini), else offline simulation."
+        },
+        "ecdat.ai.stream": {
+          "type": "boolean",
+          "default": true,
+          "description": "Stream AI chat tokens into the Copilot panel as they arrive (SSE). Disable for single-shot responses."
+        },
+        "ecdat.ai.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Sampling temperature for AI chat."
+        },
+        "ecdat.ai.maxTokens": {
+          "type": "number",
+          "default": 1024,
+          "minimum": 64,
+          "maximum": 8192,
+          "description": "Maximum tokens per AI chat response."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "qirova.openConsole",
+        "title": "QIROVA: Open Security Workbench",
+        "category": "QIROVA",
+        "icon": "$(shield)"
+      },
+      {
+        "command": "qirova.scanActiveFile",
+        "title": "QIROVA: Scan Active File for Crypto Flaws",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.scanWorkspace",
+        "title": "QIROVA: Scan Workspace for Crypto Flaws",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.runMonteCarlo",
+        "title": "QIROVA: Run Monte Carlo Q-Day Simulation",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.exportCbom",
+        "title": "QIROVA: Export CBOM (CycloneDX)",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.showQday",
+        "title": "QIROVA: Show Q-Day Projection",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.remediateAll",
+        "title": "QIROVA: Auto-remediate All Detected Flaws in File",
+        "category": "QIROVA",
+        "icon": "$(wrench)"
+      },
+      {
+        "command": "qirova.applyTheme",
+        "title": "QIROVA: Apply QIROVA Secure Theme",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.refreshFindings",
+        "title": "QIROVA: Refresh Findings",
+        "category": "QIROVA",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "qirova.redTeamChat",
+        "title": "QIROVA: Open Red-Team Copilot",
+        "category": "QIROVA",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "qirova.openWalkthrough",
+        "title": "QIROVA: Show Getting Started Walkthrough",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.findings.remediate",
+        "title": "QIROVA: Apply Suggested Remediation",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.findings.jumpTo",
+        "title": "QIROVA: Jump to Source Location",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.findings.suppress",
+        "title": "QIROVA: Suppress This Finding",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.openCopilot",
+        "title": "QIROVA: Open Copilot",
+        "category": "QIROVA",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "qirova.insertMigrationSnippet",
+        "title": "QIROVA: Insert Migration Snippet",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.welcome.done",
+        "title": "QIROVA: Reopen Getting Started Walkthrough",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.scanBinary",
+        "title": "QIROVA: Scan Binary Artifact",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.checkEntropy",
+        "title": "QIROVA: Check Entropy/Secrets",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.trapdoorScan",
+        "title": "QIROVA: Scan for Trapdoor IOCs",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.attackCost",
+        "title": "QIROVA: Show Quantum Attack Cost",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.modelsStatus",
+        "title": "QIROVA: Show Models Status",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.remediationRoadmap",
+        "title": "QIROVA: Show Remediation Roadmap",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.loadDemoSuite",
+        "title": "QIROVA: Load ECDAT Demo Suite",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.pipelineScan",
+        "title": "QIROVA: Pipeline Scan (29-Model Audit)",
+        "category": "QIROVA"
+      },
+      {
+        "command": "qirova.hardwareRedTeam",
+        "title": "QIROVA: Run Real-QPU Red Team (confirms spend)",
+        "category": "QIROVA"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "qirova.scanActiveFile",
+          "when": "editorIsOpen",
+          "group": "QIROVA@1"
+        },
+        {
+          "command": "qirova.remediateAll",
+          "when": "editorIsOpen && editorLangId =~ /^(python|javascript|typescript|java|go|csharp|cpp|c|rust)$/",
+          "group": "QIROVA@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "qirova.scanWorkspace",
+          "group": "QIROVA@1"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "qirova.findings.remediate",
+          "when": "false"
+        },
+        {
+          "command": "qirova.findings.jumpTo",
+          "when": "false"
+        },
+        {
+          "command": "qirova.findings.suppress",
+          "when": "false"
+        },
+        {
+          "command": "qirova.insertMigrationSnippet",
+          "when": "false"
+        },
+        {
+          "command": "qirova.welcome.done",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "qirova.refreshFindings",
+          "when": "view == qirova.findings",
+          "group": "navigation"
+        },
+        {
+          "command": "qirova.scanWorkspace",
+          "when": "view == qirova.findings",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "qirova.scanActiveFile",
+        "key": "ctrl+shift+q",
+        "mac": "cmd+shift+q",
+        "when": "editorIsOpen"
+      },
+      {
+        "command": "qirova.openConsole",
+        "key": "ctrl+shift+alt+q",
+        "mac": "cmd+shift+alt+q"
+      },
+      {
+        "command": "qirova.scanWorkspace",
+        "key": "ctrl+shift+alt+w",
+        "mac": "cmd+shift+alt+w"
+      },
+      {
+        "command": "qirova.openCopilot",
+        "key": "ctrl+shift+alt+c",
+        "mac": "cmd+shift+alt+c"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "qirova-container",
+          "title": "QIROVA",
+          "icon": "media/ecdat-icon.svg"
+        }
+      ],
+      "secondarySidebar": [
+        {
+          "id": "qirova-copilot-container",
+          "title": "QIROVA Copilot",
+          "icon": "media/ecdat-icon.svg"
+        }
+      ]
+    },
+    "chatParticipants": [
+      {
+        "id": "qirova",
+        "name": "qirova",
+        "description": "QIROVA quantum-security copilot: red-team review, PQC scoring, migration help and AI chat.",
+        "isSticky": true
+      }
+    ],
+    "views": {
+      "qirova-copilot-container": [
+        {
+          "id": "qirova.copilotView",
+          "name": "Copilot",
+          "type": "webview",
+          "contextualTitle": "QIROVA Copilot",
+          "icon": "media/ecdat-icon.svg",
+          "visibility": "visible"
+        }
+      ],
+      "qirova-container": [
+        {
+          "id": "qirova.findings",
+          "name": "Crypto Findings",
+          "contextualTitle": "Crypto Findings",
+          "icon": "media/findings-icon.svg",
+          "visibility": "visible"
+        },
+        {
+          "id": "qirova.risk",
+          "name": "Quantum Risk Lab",
+          "contextualTitle": "Quantum Risk",
+          "icon": "media/quantum-icon.svg"
+        },
+        {
+          "id": "qirova.compliance",
+          "name": "Compliance",
+          "contextualTitle": "Compliance",
+          "icon": "media/compliance-icon.svg"
+        },
+        {
+          "id": "qirova.threat",
+          "name": "Threat Timeline",
+          "contextualTitle": "Threat Timeline",
+          "icon": "media/threat-icon.svg",
+          "visibility": "visible"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "qirova.findings",
+        "contents": "No crypto findings yet. Open or scan a file to begin.\n[Open Walkthrough](command:qirova.openWalkthrough)\n[Scan Workspace](command:qirova.scanWorkspace)"
+      },
+      {
+        "view": "qirova.risk",
+        "contents": "Quantum Risk Lab connects to your FastAPI gateway.\n[Run Monte Carlo](command:qirova.runMonteCarlo)"
+      }
+    ],
+    "themes": [
+      {
+        "label": "QIROVA Secure",
+        "uiTheme": "vs-dark",
+        "path": "./themes/qirova-secure.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "qirova-crypto-icons",
+        "label": "QIROVA Crypto Icons",
+        "path": "./media/ecdat-icon.svg"
+      }
+    ],
+    "walkthroughs": [
+      {
+        "id": "qirova.welcome",
+        "title": "Welcome to QIROVA IDE",
+        "description": "Post-quantum cryptography IDE for security operators and developers.",
+        "steps": [
+          {
+            "id": "qirova.welcome.intro",
+            "title": "Your IDE is now quantum-aware",
+            "description": "QIROVA IDE adds inline crypto diagnostics, per-file PQC scoring, one-click remediation (MD5→BLAKE3, RSA→ML-KEM), and a security workbench — all without leaving Code-OSS.",
+            "media": {
+              "markdown": "walkthrough/intro.md"
+            }
+          },
+          {
+            "id": "qirova.welcome.theme",
+            "title": "Apply the QIROVA Secure theme",
+            "description": "A SOC-tuned dark theme with high-contrast severity colors. Click to switch.",
+            "media": {
+              "markdown": "walkthrough/theme.md"
+            },
+            "completionEvents": [
+              "onCommand:qirova.applyTheme"
+            ]
+          },
+          {
+            "id": "qirova.welcome.gateway",
+            "title": "Connect to your gateway",
+            "description": "Set ecdat.gateway.url in settings (Command Palette → 'Preferences: Open User Settings'). Default is http://localhost:8000 — change to your on-prem/remote deployment.",
+            "media": {
+              "markdown": "walkthrough/gateway.md"
+            }
+          },
+          {
+            "id": "qirova.welcome.firstScan",
+            "title": "Scan your first file",
+            "description": "Open a Python/JS/Go/Java file and run 'QIROVA: Scan Active File for Crypto Flaws'. Inline squiggles and QuickFix appear automatically.",
+            "media": {
+              "markdown": "walkthrough/scan.md"
+            },
+            "completionEvents": [
+              "onCommand:qirova.scanActiveFile"
+            ]
+          },
+          {
+            "id": "qirova.welcome.console",
+            "title": "Open the Security Workbench",
+            "description": "Upload code, run the 5-stage audit pipeline, and view results with charts, migration cost estimates, and one-click CBOM export.",
+            "media": {
+              "markdown": "walkthrough/console.md"
+            },
+            "completionEvents": [
+              "onCommand:qirova.openConsole"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package --no-dependencies",
+    "lint": "tsc --noEmit",
+    "test": "node --test \"test/*.test.js\"",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=\"out/**/*.js\" --test-coverage-exclude=\"**/*.map\" --test-coverage-lines=80 --test-coverage-branches=75 --test-coverage-functions=75 \"test/*.test.js\"",
+    "test:unit": "node --test test/detector.test.js test/remediator-copilot.test.js test/providers-statusbar.test.js",
+    "test:integration": "node --test test/integration.test.js",
+    "test:webview": "node test/webview-e2e.check.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.4.0",
+    "jsdom": "^26.0.0"
+  }
+}
