@@ -39,7 +39,7 @@
 | CBOM analytics tool | CycloneDX 1.6/1.7 CBOM + SBOM fusion, `GET /scans/{id}/cbom` | `ECDAT-Web/doc/ECDAT_COMPLETE_ARCHITECTURE_DIAGRAM.md` |
 | Scan repos, binaries, libraries, containers | `POST /scan/source`, `/scan/binary`, `/scan/entropy`, container + dependency scan | `ECDAT-Web/doc/GATEWAY_API_REFERENCE.md` |
 | Standardised report (versions/modes) | Findings with algo + version + mode + CWE + confidence + recommendation, SARIF + PDF export | `ECDAT-Web/doc/ALL_APIS_EXECUTION_REPORT.md` |
-| Interactive GUI | Web workbench (`frontend/`, `judges.html`) + IDE panels + SOC console | `ECDAT-IDE/ecdat-ide-extension/README.md` |
+| Interactive GUI | Web workbench (`frontend/`) + IDE panels + SOC console | `ECDAT-IDE/ecdat-ide-extension/README.md` |
 | **Beyond PS (our additions)** | Auto-remediation with in-editor Accept/Reject, CERT-In v2.0 / DPDP / NIST compliance, NVD+CISA-KEV vuln intel, TrapDoor supply-chain check, executable Shor/Grover proof on simulator + real IBM QPU, migration cost (CostNet P50) | `ECDAT-IDE/QIROVA-FINAL.md`, `ECDAT-IDE/PRESENTATION.md` |
 
 ---
@@ -87,7 +87,7 @@ ECDAT/  (this submission root)
 | **Interface** | REST API + web workbench: upload repo → staged progress → findings / telemetry / compliance / migration views → CBOM + PDF export | QIROVA Copilot chat (`scan`, `migrate`, `red-team`, `qred`, `q-day`, `cbom`, `score`, `knowledge`) + inline red/green diffs with Accept/Reject CodeLens + ghost fixes + 4 side panels + status-bar Q-Day & PQC score |
 | **Backend** | Lean production gateway, 4 checked-in models, dockerised services (CPU/GPU/stateful/batch), `docker-compose.yml`, k8s manifests | Full 29-model runtime (`all_models/model_01..29`) + `quantum_redteam/` 3-phase engine, child-process isolated audits, 8-min deadline with partial results |
 | **Why it exists** | Central, scalable, team-wide scans; CI integration; judge demo without installing an IDE; cloud deploy | Fix where code is written; one-click QuickFix (MD5→blake2b, SHA-1→SHA-256, RC4→ChaCha20, DES→AES-256, ECB→GCM, RSA→ML-KEM-768); immediate quantum proof + cost |
-| **Demo in 2 min** | `POST /api/v1/pipeline/audit` or open `judges.html` → show Q-Day P5–P95 table + CostNet P50 + CBOM | Open vulnerable file → `scan` → `migrate` → Accept All → `cbom` |
+| **Demo in 2 min** | `POST /api/v1/pipeline/audit` → show Q-Day P5–P95 table + CostNet P50 + CBOM | Open vulnerable file → `scan` → `migrate` → Accept All → `cbom` |
 
 Both speak the same API. IDE default gateway `http://127.0.0.1:8000`, overridable via `ecdat.gateway.url`.
 
@@ -242,7 +242,7 @@ Python 3.11 · FastAPI · Uvicorn · Tree-sitter · Qiskit Aer · IBM Quantum ·
 | 5 | Source + binary + library + container scan | ✅ | `POST /scan/source|binary|entropy`, container + dep scan — see `GATEWAY_API_REFERENCE.md` |
 | 6 | Quantum risk (Mosca + Q-Day + HNDL) | ✅ | QARS + Monte-Carlo + HNDL scorer |
 | 7 | PQC recommendations (NIST FIPS 203/204/205 + hybrid) | ✅ | Remediation engine + migration matrix |
-| 8 | Interactive GUI | ✅ | Web workbench + `judges.html` + IDE panels/console |
+| 8 | Interactive GUI | ✅ | Web workbench + IDE panels/console |
 | 9 | Real-QPU evidence | ✅ | Job IDs + `docs/qpu-first-run-proof.json` |
 | 10 | Benchmarks + API execution reports | ✅ | `ALL_MODELS_BENCHMARK_AND_ACCURACY_TABLES.md`, `ALL_APIS_EXECUTION_REPORT.md` |
 | 11 | No secrets committed | ✅ | Root `.gitignore` excludes `.env`, `secrets.yaml`, handoffs; evaluators use `.env.example` |

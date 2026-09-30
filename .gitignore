@@ -108,7 +108,7 @@ htmlcov/
 **/k8s/overlays/local/
 *.tar
 
-# ---------- 9. FRONTEND DRAFTS (keep index.html + judges.html only if needed) ----------
+# ---------- 9. FRONTEND DRAFTS (keep index.html only if needed) ----------
 # Uncomment to exclude frontend drafts:
 # **/frontend/app.js
 # **/frontend/styles.css
