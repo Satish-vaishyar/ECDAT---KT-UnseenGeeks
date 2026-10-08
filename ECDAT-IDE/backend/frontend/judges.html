@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QIROVA · Judges Brief — SIH26 PS26164 NTRO</title>
+<style>
+:root{--bg:#f5f7fa;--panel:#fff;--line:#dfe5ec;--text:#152235;--muted:#6f7e91;--accent:#286b62;--accent-soft:#e8f3f0;--warn:#9b6a16;--danger:#b74a57;--r:14px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:26px 22px 60px}
+.hero{border:1px solid var(--line);border-radius:18px;padding:34px;background:linear-gradient(135deg,#ffffff,var(--accent-soft))}
+.eyebrow{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.16em}
+h1{font-size:clamp(30px,5vw,52px);margin:8px 0;line-height:1.05}h2{font-size:22px;margin:34px 0 10px}h3{font-size:15px}
+p.mut{color:var(--muted)}.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.card{border:1px solid var(--line);border-radius:var(--r);background:var(--panel);padding:16px}
+.stat b{font-size:24px;display:block}.stat small{color:var(--muted)}
+.btn{display:inline-block;padding:10px 16px;border-radius:10px;background:var(--accent);color:#fff;font-weight:800;text-decoration:none;margin-right:8px}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--text)}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
+input,select{width:100%;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:#fbfcfd;color:var(--text)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.tab{padding:8px 12px;border:1px solid var(--line);border-radius:99px;cursor:pointer;font-size:12px;background:#fff}.tab.on{background:var(--accent);color:#fff;font-weight:800}
+code.k{background:var(--accent-soft);border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-size:11px}
+pre{background:#0f1b2d;border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:11.5px;color:#eaf0fb}
+.steps{display:flex;gap:8px;flex-wrap:wrap}.step{flex:1;min-width:150px;border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}.step.on{border-color:var(--accent)}
+.note{font-size:12px;color:var(--muted)}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="wrap">
+<div class="eyebrow">SMART INDIA HACKATHON 2026 · PS 26164 · NTRO</div>
+<h1>QIROVA — Quantum Intelligence for Resilient Operations, Vulnerability &amp; Assurance</h1>
+<p class="mut">Enterprise Cryptographic Discovery &amp; PQC Migration (ECDAT). 29 models · 5-stage sequential audit · We generate a CycloneDX-compatible CBOM (CycloneDX 1.6, ECMA-424: algorithms, certificates, keys + relationships) · Q-Day forecasting · IBM 156-qubit validated defense. Runs locally on i7-13th / Ryzen 7 + RTX 3050, planned GCP.</p>
+<p><a class="btn" href="/app/">Try live app ↗</a><a class="btn ghost" href="/docs">API docs ↗</a><a class="btn ghost" href="/api/v1/health">Health ↗</a></p>
+
+<div class="grid g4" style="margin-top:16px">
+<div class="card stat"><b>99.80%</b><small>Model 04 CryptoClassLLM (Qwen2.5-Coder-3B+LoRA, 25-class)</small></div>
+<div class="card stat"><b>99.10%</b><small>Model 06 MisuseDetector (XGBoost+RL, 7 CWE)</small></div>
+<div class="card stat"><b>P5/P50/P95</b><small>Model 26 Monte-Carlo Q-Day + DQN · 0% over-deadline loss</small></div>
+<div class="card stat"><b>156-qubit</b><small>IBM Heron ibm_fez / ibm_marrakesh receipts · Model 29 99.42% static</small></div>
+</div>
+
+<h2>1 · 60-second judge flow</h2>
+<div class="card"><ol>
+<li>Open <code class="k">/app/</code> → upload folder <code class="k">demo_bubble12/all_counts.py</code> → Analyze (~12s, 5 stages).</li>
+<li>See 4 charts: Risk donut (Critical/High/Medium/Low) · 11 crypto bubbles all different sizes · Model health · Compliance.</li>
+<li>Scroll to <b>Migration cost</b>: Common scope table + <b>Table 1 Normal (manual) first</b>, <b>Table 2 With QIROVA</b> side-by-side, incl. API ($75) + Quantum ($45).</li>
+<li>Drag Effort/Timeline sliders — inversely linked (more people = shorter time), cost follows effort. Reset baseline to restore trained P50.</li>
+<li>Download report/CBOM PDFs from history; check <code class="k">/docs</code> for 30+ routes.</li>
+</ol><p class="note">Best upload: demo_bubble12 gives 11/10/9/8/7/6/5/4/3/2/1 counts → 11 bubbles. Source: gateway/client.py CRYPTO_PATTERNS + MISUSE_RULES.</p></div>
+
+<h2>2 · 5-stage pipeline (click)</h2>
+<div class="steps" id="steps"></div>
+<div class="card" id="stepBody" style="margin-top:10px"></div>
+
+<h2>3 · Model matrix (search)</h2>
+<input id="mq" placeholder="Filter e.g. qars, rag, llama, cost…">
+<div class="card" style="margin-top:10px;overflow:auto"><table id="mt"><thead><tr><th>ID</th><th>Name</th><th>Arch</th><th>Metric</th><th>Route</th></tr></thead><tbody></tbody></table></div>
+
+<h2>4 · Cost logic (trained, not heuristic)</h2>
+<div class="grid g2">
+<div class="card"><h3>How estimate is done</h3><p class="mut">Trained <b>Model 28 CostNet</b> (TabNet+LightGBM, <code class="k">all_models/model_28/loader.py:predict_mitigation_cost</code>) runs first on 24 features. Raw enterprise P50 ~81 PM overestimates small repos → UI shows <b>calibrated codebase estimate</b> (workstreams RSA 0.35 + sym 0.25 + TLS 0.15 + secret 0.15 + testing) × $15k/PM, P10 0.75x / P90 1.35x, timeline 1.25/1.75/2.5x. Raw kept in <code class="k">migration_cost_comparison</code>. Per-algo fallback <code class="k">gateway/client.py:calculate_migration_cost</code> (RSA 6PM $65k … MD5 1.2PM $14k) × env/instance multipliers, INR ×85, split 35/30/20/15.</p></div>
+<div class="card"><h3>Interactive: effort ⇄ timeline</h3>
+<label>Effort (person-months)</label><input id="ce" type="range" min="0.5" max="4" step="0.05" value="1.16">
+<label>Timeline (months)</label><input id="ct" type="range" min="0.5" max="12" step="0.1" value="2">
+<p>QIROVA total: <b id="cq">$—</b> · Normal: <b id="cn">$—</b> · <b id="cs">$— saved</b></p>
+<p class="note">QIROVA = labor + $75 API/server + $45 quantum. Normal = labor×2.6. Effort↑ → timeline↓.</p></div>
+</div>
+
+<h2>5 · Quantum + PQC + compliance</h2>
+<div class="grid g3">
+<div class="card"><h3>Threat</h3><p class="mut">Shor breaks RSA/ECDH/ECDSA; Grover halves AES-128/SHA. HNDL tracked via Mosca X+Y&gt;Z, QARS 0–100, GNN cascade, TKG deprecation.</p></div>
+<div class="card"><h3>PQC replacements</h3><p class="mut">ML-KEM-768 (FIPS 203), ML-DSA-65 (FIPS 204), SLH-DSA (FIPS 205), X25519+ML-KEM hybrid, AES-256-GCM. See <code class="k">GET /api/v1/quantum/pqc-matrix</code>.</p></div>
+<div class="card"><h3>Compliance</h3><p class="mut">CERT-In 8-element CBOM, DPDP ₹250Cr, DST 2027–29, NIST IR 8547, CycloneDX 1.6 CBOM (ECMA-424, IBM-upstreamed) + report PDF. 1247-rule Compliance KB, 780-API Crypto KB, 18k-CVE VulnIntel.</p></div>
+</div>
+
+<h2>6 · Architecture &amp; APIs</h2>
+<div class="card"><p class="mut">Gateway :8000 → class-a-cpu :8080 (01,02,03,06,17,18,20,22–26,28) · class-c :8081 + ChromaDB :8001 (12–16,21) · class-b-gpu :8082 (08/09/10 Ollama, 11 Gemini ≤5%) · class-e-ml :8083 (04/07, ~20GB HF). STANDALONE_FALLBACK=true. Batch 05/19/27/29 via class-d. K8s overlays prod/vultr.</p>
+<pre>curl -X POST localhost:8000/api/v1/pipeline/upload-audit -H 'Content-Type: application/json' -d '{"files":[{"path":"demo.py","content_base64":"ZnJvbSBDcnlwdG8uUHVibGljS2V5IGltcG9ydCBXU0E="}],"target_name":"demo"}'
+curl localhost:8000/api/v1/quantum/pqc-matrix
+curl -X POST localhost:8000/api/v1/migration/cost -H 'Content-Type: application/json' -d '{"algorithm":"RSA-2048","instances_count":5,"deployment_env":"prod"}'</pre>
+<p><span class="tab on">Full route map in GATEWAY_API_REFERENCE.md (30 routes)</span> <span class="tab">Tests: tests/test_gateway.py (12 passed)</span> <span class="tab">Spec: doc/ECDAT_AI_ML_MODELS.md + ARCHITECTURE_V3 + IMPLEMENTATION_V3</span></p></div>
+
+<h2>7 · Docs index</h2>
+<div class="card"><p class="mut">All content distilled from <code class="k">doc/</code>: AI-Research-PS26164 · Benchmark tables (38 tables) · Architecture V3 · Implementation V3 · Quantum research · Cybersecurity research · Gateway API ref · Spec compliance · GCP hosting · Audit output guide.</p></div>
+
+<h2>8 · Judge script — read &amp; speak (pictorial)</h2>
+<div class="card">
+<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;margin-bottom:14px">
+<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff"><div style="font-size:22px">◉</div><b>Hook</b><br><small>HNDL</small></div>
+<div style="align-self:center">→</div>
+<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff"><div style="font-size:22px">▣</div><b>Map</b><br><small>Where?</small></div>
+<div style="align-self:center">→</div>
+<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff"><div style="font-size:22px">⬢</div><b>Risk</b><br><small>Which?</small></div>
+<div style="align-self:center">→</div>
+<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff"><div style="font-size:22px">✚</div><b>Fix</b><br><small>PQC</small></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;margin-bottom:14px">
+<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--accent-soft)"><b>QUANTUM</b><br><small>WHAT is dangerous</small></div>
+<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--accent-soft)"><b>AI</b><br><small>HOW to detect</small></div>
+<div style="border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--accent-soft)"><b>CYBER</b><br><small>WHY it matters</small></div>
+</div>
+<p>For <b>Phase 1</b>, do NOT sound like a technical viva. Judges should first feel: <b>“Real national-security problem → existing tools don't solve end-to-end → these students get the gap → solution is credible + actionable.”</b> Strongest story is not “we built an AI tool” but: <b>“Before quantum-safe, first know where crypto is, what is at risk, what to replace. Today fragmented. QIROVA closes that loop.”</b></p>
+<h3>◉ OPENING HOOK — say</h3>
+<blockquote>“Good morning respected judges. Let me start with a simple situation. Imagine today someone records an encrypted conversation between two government systems. They cannot decrypt it today. But they don't need to. They simply store it. And years later, when sufficiently powerful quantum computers become available, they attempt to decrypt that data. This is called <b>Harvest Now, Decrypt Later</b>. And this changes the quantum threat completely. Because the question is no longer ‘When will quantum computers break encryption?’ The question is: <b>‘Which of our data is already vulnerable if we wait?’</b>” Pause. “And that is exactly the problem we are solving with <b>QIROVA</b>.”</blockquote>
+<p class="note">HNDL + 2029 PQC pressure: Google announced 2029 post-quantum migration target, Mar 2026.</p>
+<h3>▣ WHAT IS THE PROBLEM? — say</h3>
+<blockquote>“Today organizations use crypto everywhere. Not one app. Inside source code. Inside compiled software where source may not even be available. Inside containers. Inside TLS certs and connections. Buried in third-party deps.” Point to architecture. “Imagine 10,000 apps. Security wants 3 answers: <b>First — Where exactly are we using crypto? Second — Which are actually at quantum risk? Third — What exactly should we change?</b> Today answered by disconnected tools — one for code, one for binaries, one for TLS, one for vulns — then humans manually join.” Pause. “So problem isn't just RSA/ECC may break. <b>Real problem is no complete map of where crypto is, how important each asset is, when it becomes risky, how to migrate.</b>”</blockquote>
+<h3>▣ REAL-WORLD EXAMPLE — say</h3>
+<blockquote>“This isn't theoretical. In Mar 2026 Google announced <b>2029 PQC migration</b> — quantum progress + error correction + attack-cost estimates changed urgency; already integrating PQC. Cloudflare: by Mar 2025 <b>more than one-third of human web traffic already HNDL-protected via hybrid ML-KEM</b>. Meta describes <b>inventory, risk assessment, deployment, guardrails</b> for enterprise PQC. So world is moving. But: <b>You cannot migrate what you cannot discover. And you cannot prioritize what you cannot measure.</b>” Pause. “That is where our work begins.”</blockquote>
+<h3>⬢ BACKGROUND STUDY — say</h3>
+<blockquote>“Before QIROVA we studied 3 domains. QUANTUM → AI/ML → CYBERSECURITY. From <b>quantum</b>: how RSA/ECC hit by Shor, symmetric by Grover, attack-resource estimates, exposure time. From <b>AI/ML</b>: identify crypto by structure/context, not searching ‘RSA’. From <b>cybersecurity</b>: vuln intel, supply-chain, compliance, enterprise practice. Key line: <b>Quantum tells WHAT is dangerous. AI tells HOW to detect accurately. Cybersecurity tells WHY it matters.</b>”</blockquote>
+<h3>⬢ FIVE GAPS — say</h3>
+<blockquote>GAP 1 Discovery: “No unified discovery across code, binaries, containers, TLS, deps.” GAP 2 False positives: “Finding word ‘RSA’ ≠ using RSA. Detection without context = noise.” GAP 3 Quantum risk: “Scanners say vulnerable/not. But test app ≠ 20-year classified data.” GAP 4 Remediation: “Tools stop at ‘vulnerable.’ Team still asks ‘What do I change?’” GAP 5 Enterprise: “Gov/CII needs on-prem/air-gap, compliance, audit, controlled deploy.” Strong transition: <b>“What if discovery, risk, remediation, compliance were one continuous pipeline?”</b></blockquote>
+<h3>▣ PLAN — DISCOVER + UNDERSTAND — say</h3>
+<blockquote>“That is QIROVA.” Show simplified arch. STEP 1 DISCOVER: “Scan 5 sources: <b>code, binaries, containers, network/TLS, deps.</b> Visible or hidden in binary → one inventory.” STEP 2 UNDERSTAND: “Don't blindly trust pattern. Combine signals: structurally called API? library imported? key size? production? comment/test only? → confidence score.” Analogy: “‘Found word RSA’ vs ‘Strong evidence RSA-2048 in prod auth flow.’”</blockquote>
+<h3>⬢ QUANTUM RISK — say</h3>
+<blockquote>“We don't say ‘quantum vulnerable.’ We ask ‘How urgent is this asset?’ Combine <b>attack cost, sensitivity, exposure, HNDL, migration timeline</b> → Monte-Carlo P(exposure). Like ER triage: not every patient same. Killer line: <b>“Instead of 10,000 findings: 20 now. 200 next. Rest low priority.”</b>”</blockquote>
+<h3>✚ REMEDIATION — say</h3>
+<blockquote>“Don't end with warning. Identify high-risk impl → propose PQC path e.g. ECC → <b>ML-KEM, ML-DSA or hybrid</b>. Don't blindly trust AI: <b>generate → compile → test → rescan → verify.</b> Fail confidence/validation = reject.”</blockquote>
+<h3>✚ COMPLIANCE + OUTPUT — say</h3>
+<blockquote>“Convert tech to usable: <b>CBOM, risk reports, migration plans, compliance gaps, audit trail.</b> Engineer gets findings. CISO gets priority. Auditor gets evidence. Management gets roadmap.”</blockquote>
+<h3>★ CLOSING — slow, say</h3>
+<blockquote>“Quantum threat isn't just breaking RSA/ECC. <b>Real challenge: knowing where they are, which matter, when dangerous, how to replace safely.</b> QIROVA: <b>Discover. Understand. Quantify. Remediate. Verify. Prove compliance.</b> Goal: <b>Don't wait for quantum to discover you're not ready. Make enterprise quantum-ready before Q-Day. Thank you.</b>”</blockquote>
+<pre>THE QUANTUM PROBLEM → Where is crypto? → Which at risk? → When matters? → How fix? → QIROVA [DISCOVER code/binary/TLS/deps | ASSESS quantum/HNDL/QARS/Q-Day | REMEDIATE PQC/hybrid+verify] → COMPLIANCE+CBOM → QUANTUM-READY</pre>
+<p><b>Emphasize:</b> “You cannot migrate what you cannot discover…” / “Most tools say vulnerable. QIROVA says where, how urgent, what to do.” / “Not another scanner; a decision + migration layer.” <b>Strategy:</b> problem→consequence→evidence→research→gap→solution. Tech terms only after idea lands (“AST = understand what program does, not search RSA”). Slides: Hook / Problem / Proof / Study / Gaps / Overview / Discovery+AI / Risk / Remediation / Compliance / Close.</p>
+<p class="note">Refs: Google PQC timeline Mar 2026 · Cloudflare post-quantum Zero Trust Mar 2025 · Meta PQC migration Apr 2026.</p></div>
+
+<footer style="margin-top:26px" class="note">QIROVA · SIH26-26164 · Local: i7/Ryzen + RTX 3050 · Planned: GCP · IBM jobs dafhlo51ierc738ncop0, dafi7qtnj4cs73agdfm0</footer>
+</div>
+<script>
+const STAGES=[["01 Discover","Models 01–03 · AST-CryptoNet, BinCryptoCNN, EntropyGuard on CPU. 15-class + entropy, per-line findings."],["02 Misuse","Model 06 XGBoost+RL · 7 CWE (327/326/321/329/330/295/916). INSECURE verdicts feed bubbles."],["03 Classify+Fix","Models 04/07 on GPU lock · 3-level taxonomy + LoRA remediation draft (ML-KEM-768) if CRITICAL/HIGH."],["04 Intel","Models 08–29 · CDKG 25k nodes, RAG/Hybrid+Chroma, SourceTrust, VulnIntel 18k CVE, QARS/Mosca/Monte-Carlo/DQN, CostNet 28, RedTeam 29."],["05 Report","ScanStore persist · 4 charts + compliance + dual cost tables + CBOM/report PDFs + history."]];
+const steps=document.getElementById('steps'),body=document.getElementById('stepBody');
+STAGES.forEach((s,i)=>{const d=document.createElement('div');d.className='step'+(i==0?' on':'');d.innerHTML='<b>0'+(i+1)+'</b><div><strong>'+s[0]+'</strong><br><small style="color:var(--muted)">'+s[1].split('·')[0]+'</small></div>';d.onclick=()=>{document.querySelectorAll('.step').forEach(x=>x.classList.remove('on'));d.classList.add('on');body.innerHTML='<b>'+s[0]+'</b><p class="mut">'+s[1]+'</p>'};steps.appendChild(d)});body.innerHTML='<b>'+STAGES[0][0]+'</b><p class="mut">'+STAGES[0][1]+'</p>';
+const MODELS=[["01","AST-CryptoNet","Tree-sitter+12-signal","6-lang scan","POST /api/v1/scan/source"],["02","BinCryptoCNN","1D-CNN 15-class","CRITICAL recall","POST /api/v1/scan/binary"],["03","EntropyGuard","Shannon/Chi2","sub-ms keys","POST /api/v1/scan/entropy"],["04","CryptoClassLLM","Qwen2.5-3B+LoRA","99.80%","POST /api/v1/classify"],["05","CryptoRobust","Adv-resilient AST","obfusc-proof","POST /api/v1/robust/detect"],["06","MisuseDetector","XGBoost+RL 34f","99.10%","POST /api/v1/classify/misuse"],["07","ECDAT LoRA","Qwen2.5-7B+QLoRA","remediation","POST /api/v1/llm/generate"],["08","DeepSeek-V2","15.7B MoE","reasoning","POST /api/v1/llm/generate"],["09","StarCoder2","15.2B dense","audit docs","POST /api/v1/llm/generate"],["10","CodeLlama","6.7B","legacy","POST /api/v1/llm/generate"],["11","Gemini Flash","1M ctx ≤5%","NVD ingest","POST /api/v1/llm/generate"],["12","CDKG","25k nodes+RL","migration paths","POST /api/v1/knowledge/query"],["13","RAG KB","dense/sparse+PPO","standards QA","POST /api/v1/rag/search"],["14","Hybrid","BM25+FAISS RRF","<20ms","POST /api/v1/knowledge/hybrid"],["15","ChromaDB","MiniLM-384 HNSW","<5ms","POST /api/v1/knowledge/vector"],["17","SourceTrust","SLSQP+XGBoost","97%","POST /api/v1/knowledge/trust"],["18","TKG","temporal+DQN","forecast","POST /api/v1/knowledge/temporal"],["19","GNN Risk","GraphSAGE","92% AUC","POST /api/v1/risk/gnn"],["20","Quantum Cost","Shor/Grover","qubits/gates","GET /api/v1/quantum/attack-costs/{algo}"],["21","Crypto API KB","780 APIs 6-lang","sig map","POST /api/v1/knowledge/crypto-api"],["22","VulnIntel","18k CVE+RL","98% top-1","POST /api/v1/knowledge/vuln"],["23","Trapdoor","6 families","sub-ms","POST /api/v1/security/trapdoor"],["24","Compliance KB","1247 rules","CERT/DPDP","POST /api/v1/knowledge/compliance"],["25","QARS","6-comp+RL","95% align","POST /api/v1/risk/score"],["26","Monte-Carlo","logN+DQN","P5/P50/P95","POST /api/v1/risk/monte-carlo"],["27","Temporal Risk","horizon forecast","phase-out","POST /api/v1/risk/forecast"],["28","CostNet","TabNet+LGBM","P10/P50/P90","POST /api/v1/migration/cost"],["29","RedTeam","VQC+PPO+IBM","99.42%","POST /api/v1/security/redteam"]];
+const tb=document.querySelector('#mt tbody');function draw(q){tb.innerHTML='';MODELS.filter(m=>!q||m.join(' ').toLowerCase().includes(q)).forEach(m=>{const tr=document.createElement('tr');m.forEach(x=>{const td=document.createElement('td');td.textContent=x;tr.appendChild(td)});tb.appendChild(tr)})}draw('');document.getElementById('mq').oninput=e=>draw(e.target.value.toLowerCase());
+const ce=document.getElementById('ce'),ct=document.getElementById('ct');
+function upd(from){let e=parseFloat(ce.value),t=parseFloat(ct.value);if(from=='e'){t=+(2*e/1.16).toFixed(1);ct.value=t}else{e=+(1.16*t/2).toFixed(2);ce.value=e}let labor=Math.round(e*15000),q=labor+120,n=Math.round(labor*2.6);document.getElementById('cq').textContent='$'+q.toLocaleString();document.getElementById('cn').textContent='$'+n.toLocaleString();document.getElementById('cs').textContent='$'+(n-q).toLocaleString()+' saved'}
+ce.oninput=()=>upd('e');ct.oninput=()=>upd('t');upd('e');
+</script>
+</body></html>

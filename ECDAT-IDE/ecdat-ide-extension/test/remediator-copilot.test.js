@@ -10,7 +10,7 @@ const { CryptoDetector } = require('../out/cryptoDetector');
 const { CryptoRemediator, registerRemediator } = require('../out/remediator');
 const { CopilotPanel, CopilotSidebarProvider, registerCopilot } = require('../out/copilot');
 
-const TMP = path.join(__dirname, '.tmp');
+const TMP = path.join(__dirname, '.tmp-rem');
 const rel = (...parts) => path.join(TMP, ...parts);
 const ARROW = '\u2192';
 const DASH = '\u2014';

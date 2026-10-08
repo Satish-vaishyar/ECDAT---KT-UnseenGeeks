@@ -89,7 +89,7 @@ def _curve(algo: str, snippet: str = "") -> Optional[str]:
     return m.group(1).upper() if m else None
 
 
-_FAMILIES = ("ML-KEM", "ML-DSA", "SLH-DSA", "AES", "SHA", "RSA", "ECDSA", "ECDH",
+_FAMILIES = ("ML-KEM", "ML-DSA", "SLH-DSA", "AES", "HMAC", "SHA", "RSA", "ECDSA", "ECDH",
              "DES", "3DES", "CHACHA", "BLAKE", "MD5", "HMAC", "ED25519", "X25519",
              "DH", "DSA", "FALCON", "HQC")
 
@@ -187,7 +187,7 @@ def _algorithm_component(algo: str, finding: Dict[str, Any], _bom_ref: str) -> D
     if "AES" in algo.upper():
         mode = "GCM" if "GCM" in snippet.upper() else "CBC"
     param = str(ks) if ks else ""
-    name = family + ("-" + param if param else "") + ("-" + mode if mode else "")
+    name = algo + ("-" + mode if mode and not algo.upper().endswith(mode) else "")
     bom_ref = "crypto/algorithm/" + _slug(family + ("-" + mode if mode else ""))
     primitive = _primitive(algo, mode)
     crypto_fns = (["encrypt", "decrypt"] if primitive in ("pke", "block-cipher", "ae", "key-agreement")

@@ -358,7 +358,7 @@ test('scan: content from an activated editor fixture is scanned', () => {
   assert.deepStrictEqual(ids(findings), ['md5', 'math_random', 'cert_verify_disabled']);
 });
 
-const TMP = path.join(__dirname, '.tmp');
+const TMP = path.join(__dirname, '.tmp-det');
 const rel = (...parts) => path.join(TMP, ...parts);
 
 test.before(() => {

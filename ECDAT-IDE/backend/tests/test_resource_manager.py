@@ -113,7 +113,7 @@ def test_scan_store_persistence():
     cbom = store.get_cbom(scan_id)
     assert cbom is not None, "Failed to retrieve CBOM"
     assert cbom["bomFormat"] == "CycloneDX"
-    assert cbom["specVersion"] == "1.6"
+    assert cbom["specVersion"] == "1.7"
     assert len(cbom["components"]) == 3
     print(f"  CycloneDX 1.6 CBOM verified: {len(cbom['components'])} cryptographic components.")
     names = {c.get("name") for c in cbom["components"]}

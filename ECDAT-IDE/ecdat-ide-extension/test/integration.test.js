@@ -89,6 +89,10 @@ before(async () => {
     const u = new URL(req.url, 'http://127.0.0.1');
     const p = u.pathname;
     seenHeaders.push({ path: p, authorization: req.headers.authorization });
+    if (p === '/healthz') {
+      if (flags.hangHealth) return; // never respond
+      return reply(res, 200, { status: 'healthy', service: 'ecdat-gateway' });
+    }
     if (p === '/api/v1/health') {
       if (flags.hangHealth) return; // never respond
       return reply(res, 200, { status: 'ok' });

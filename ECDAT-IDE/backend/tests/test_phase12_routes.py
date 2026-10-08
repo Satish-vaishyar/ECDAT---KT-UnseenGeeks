@@ -118,6 +118,8 @@ def test_featherless_backend_selection(monkeypatch):
     monkeypatch.setenv("FEATHERLESS_API_KEY", "test-key")
     monkeypatch.delenv("NVIDIA_API_KEY", raising=False)
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    monkeypatch.delenv("MODEL8_BACKEND", raising=False)
+    monkeypatch.delenv("ECDAT_MODEL08_BACKEND", raising=False)
     assert _model_backend(8) == "featherless"
     monkeypatch.delenv("FEATHERLESS_API_KEY")
     assert _model_backend(8) in ("auto", "simulation")

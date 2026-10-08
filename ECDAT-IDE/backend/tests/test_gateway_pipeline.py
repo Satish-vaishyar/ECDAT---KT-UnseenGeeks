@@ -86,7 +86,7 @@ def generate_user_key():
     assert cbom_resp.status_code == 200
     cbom = cbom_resp.json()
     assert cbom["bomFormat"] == "CycloneDX"
-    assert cbom["specVersion"] == "1.6"
+    assert cbom["specVersion"] == "1.7"
     print(f"  CBOM Specification: {cbom['bomFormat']} v{cbom['specVersion']}")
     print(f"  Components Count: {len(cbom['components'])}")
     print("  [PASS] CycloneDX CBOM endpoint verified.")

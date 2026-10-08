@@ -27,7 +27,7 @@ export class GatewayClient {
 
   async ping(): Promise<boolean> {
     try {
-      await this.request('GET', '/api/v1/health', undefined, undefined, 10000);
+      await this.request('GET', '/healthz', undefined, undefined, 5000);
       this.connected = true;
       return true;
     } catch {
