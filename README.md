@@ -1,5 +1,9 @@
 # ECDAT — Enterprise Cryptographic Discovery & Analysis Tool
 
+
+> ## No Setup Needed — Just Run the App
+> **The full application is packed into a single standalone exe kept at `ECDAT-IDE\dist\QIROVA.exe` — just run that exe to use the application. It runs without the source code as well (no Python / npm / VS Code / install required).**
+
 **Smart India Hackathon 2026 (Software Edition)**
 **Problem Statement ID: 26164 | Organisation: National Technical Research Organisation (NTRO)**
 **Theme: Blockchain & Cybersecurity**
